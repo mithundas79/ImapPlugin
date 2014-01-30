@@ -6,6 +6,7 @@ Requires CakePHP 2.4
 
 This is a cake-2.4 supporting version of kvz's cake-email-plugin
 https://github.com/kvz/cakephp-emails-plugin/tree/cake-2.0
+Additional support correct formating of modern Imap service calls and setting up datasource credentials on the fly is added.
 
 Warning
 ============
