@@ -1,0 +1,4 @@
+ImapPlugin
+==========
+
+CakePHP Imap Plugin
