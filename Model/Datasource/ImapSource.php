@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2010 Carl Sutton ( dogmatic69 )
  * Copyright (c) 2011 Kevin van Zonneveld ( kvz )
- * Copyright (c) 2014 Mithun Das ( mithundas79 ) 
+ * Copyright (c) 2014 Mithun Das ( mithundas79 ) on behalf of Neroplan
  *
  * @package libs
  * @subpackage libs.models.datasources.reader
@@ -15,12 +15,7 @@
  * @author dogmatic69
  * @author kvz
  * @author mithundas79
- * 
- * Upgraded to CakePHP 2.4
- * Added a new $this->tail variable so that the connect supports
- * 
- * Supports the connect format the following format.
- * {imap.gmail.com:993/ssl/novalidate-cert}[Gmail]/All Mail
+ *
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
@@ -501,7 +496,7 @@ class ImapSource extends DataSource {
         if (!$this->connect($Model, $query)) {
             return $this->err($Model, 'Cannot connect to server');
         }
-
+        //pr($query); exit;
         $searchCriteria = $this->_makeSearch($Model, $query);
         $uids = $this->_uidsByCriteria($searchCriteria);
         if ($uids === false) {
@@ -516,12 +511,13 @@ class ImapSource extends DataSource {
         if (empty($uids)) {
             return array();
         }
-
+        //$query['start'] = $query['offset'];
+        //$query['end'] = $query['page'];
         // Trim resulting ids based on pagination / limitation
         if (@$query['start'] && @$query['end']) {
             $uids = array_slice($uids, @$query['start'], @$query['end'] - @$query['start']);
         } elseif (@$query['limit']) {
-            $uids = array_slice($uids, @$query['start'] ? @$query['start'] : 0, @$query['limit']);
+            $uids = array_slice($uids, @$query['offset'] ? @$query['offset'] : 0, @$query['limit']);
         } elseif ($Model->findQueryType === 'first') {
             $uids = array_slice($uids, 0, 1);
         }
@@ -561,12 +557,13 @@ class ImapSource extends DataSource {
      * @return <type>
      */
     public function calculate(Model $Model, $func, $params = array()) {
-        $params = (array) $params;
+        /*$params = (array) $params;
         switch (strtolower($func)) {
             case 'count':
                 return 'count';
                 break;
-        }
+        }*/
+        return '__'.$func;
     }
 
     /**
