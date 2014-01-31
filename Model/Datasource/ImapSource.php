@@ -557,13 +557,13 @@ class ImapSource extends DataSource {
      * @return <type>
      */
     public function calculate(Model $Model, $func, $params = array()) {
-        /*$params = (array) $params;
-        switch (strtolower($func)) {
-            case 'count':
-                return 'count';
-                break;
-        }*/
-        return '__'.$func;
+        /* $params = (array) $params;
+          switch (strtolower($func)) {
+          case 'count':
+          return 'count';
+          break;
+          } */
+        return '__' . $func;
     }
 
     /**
