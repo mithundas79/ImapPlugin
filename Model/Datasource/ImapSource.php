@@ -44,7 +44,7 @@ class ImapSource extends DataSource {
             'ssl' => false,
             'retry' => 3,
             'error_handler' => 'php',
-            //'auto_mark_as' => array('seen'),
+        //'auto_mark_as' => array('seen'),
         ),
         'imap' => array(
             'port' => 143,
@@ -873,9 +873,8 @@ class ImapSource extends DataSource {
         if ($fetchAttachments) {
             $return['Attachment'] = $this->_fetchAttachments($flatStructure, $Model);
         }
-        
-        //pr($this->config['auto_mark_as']);
 
+        //pr($this->config['auto_mark_as']);
         // Auto mark after read
         if (!empty($this->config['auto_mark_as'])) {
             $marks = '\\' . join(' \\', $this->config['auto_mark_as']);
@@ -886,8 +885,8 @@ class ImapSource extends DataSource {
 
         return $return;
     }
-    
-    public function markasread(){
+
+    public function markasread() {
         $marks = '\\' . join(' \\', 'Seen');
         if (!imap_setflag_full($this->Stream, $uid, $marks, ST_UID)) {
             $this->err($Model, 'Unable to mark email %s as %s', $uid, $marks);
