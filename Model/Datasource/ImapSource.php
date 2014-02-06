@@ -1051,6 +1051,8 @@ class ImapSource extends DataSource {
         }
         return $data;
     }
+    
+    
 
     protected function _fetchFirstByMime($flatStructure, $mime_type) {
         foreach ($flatStructure as $path => $Part) {
