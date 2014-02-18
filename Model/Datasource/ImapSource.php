@@ -29,6 +29,7 @@ class ImapSource extends DataSource {
     protected $_isConnected = false;
     protected $_connectionString = null;
     protected $_connectionType = '';
+    public $Stream = false;
 
     /**
      * Setting up the default config
@@ -593,6 +594,7 @@ class ImapSource extends DataSource {
         try {
             $this->thread = null;
             $retries = 0;
+            //echo $this->_connectionString; exit;
             while (($retries++) < $this->config['retry'] && !$this->thread) {
                 $this->Stream = imap_open($this->_connectionString, $this->config['username'], $this->config['password']);
                 $this->thread = @imap_thread($this->Stream);
@@ -848,11 +850,12 @@ class ImapSource extends DataSource {
             'reply_to_name' => $this->_personId($Mail, 'reply_to', 'name'),
             'sender' => $this->_personId($Mail, 'sender', 'address'),
             'sender_name' => $this->_personId($Mail, 'sender', 'name'),
-            'subject' => htmlspecialchars(@$Mail->subject),
+            //'subject' => htmlspecialchars(@$Mail->subject),
+            'subject' => $this->_decode(@$Mail->subject),
             'slug' => Inflector::slug(@$Mail->subject, '-'),
             'header' => @imap_fetchheader($this->Stream, $uid, FT_UID),
-            'body_html' => $html,
-            'body_text' => $text,
+            'body_html' => $this->_decode($html),
+            'body_text' => $this->_decode($text),
             'size' => @$Mail->Size,
             'recent' => @$Mail->Recent === 'R' ? 1 : 0,
             'seen' => @$Mail->Unseen === 'U' ? 0 : 1,
@@ -884,13 +887,6 @@ class ImapSource extends DataSource {
         }
 
         return $return;
-    }
-
-    public function markasread() {
-        $marks = '\\' . join(' \\', 'Seen');
-        if (!imap_setflag_full($this->Stream, $uid, $marks, ST_UID)) {
-            $this->err($Model, 'Unable to mark email %s as %s', $uid, $marks);
-        }
     }
 
     protected function _awesomePart($Part, $uid) {
@@ -1046,24 +1042,31 @@ class ImapSource extends DataSource {
 
     protected function _fetchPart($Part) {
         $data = imap_fetchbody($this->Stream, $Part->uid, $Part->path, FT_UID | FT_PEEK);
+        //$data = imap_utf7_encode($data);
         if ($Part->format === 'quoted-printable' && $data) {
+
             $data = quoted_printable_decode($data);
+            //$data = iconv_mime_decode($data, 0, "ISO-8859-1");
         }
+        //$data = utf8_encode($data);
         return $data;
     }
-    
-    
 
     protected function _fetchFirstByMime($flatStructure, $mime_type) {
         foreach ($flatStructure as $path => $Part) {
             if ($mime_type === $Part->mimeType) {
                 $text = $this->_fetchPart($Part);
+                //pr($Part);
+                //echo $text;
+                //$text = iconv_mime_decode($text, 0, "UTF-8");
                 if ($Part->format === 'base64') {
                     $text = base64_decode($text);
+                    //echo $text; exit;
                 }
 
                 // No parameters, no charset to decode
                 if (empty($Part->parameters)) {
+
                     return $text;
                 }
 
@@ -1080,6 +1083,7 @@ class ImapSource extends DataSource {
                 }
 
                 // Fallback to original text
+                //$text = iconv_mime_decode($text, 0, "UTF-8");
                 return $text;
             }
         }
@@ -1127,6 +1131,13 @@ class ImapSource extends DataSource {
         }
 
         return 0;
+    }
+
+    public function query($method, $params, $Model) {
+        // you may customize this to your needs.
+        if (method_exists($this, $method)) {
+            return call_user_func_array(array($this, $method), $params);
+        }
     }
 
 }
