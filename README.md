@@ -1,6 +1,6 @@
 ImapPlugin
 ==========
-
+ 
 Imap datasource for CakePHP. 
 Requires CakePHP 2.4
 
